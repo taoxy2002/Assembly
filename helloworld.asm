@@ -1,5 +1,5 @@
 DATAS  SEGMENT;定义数据段 DATAS
-     STRING  DB  'Hello World!',13,10,'$';定义数据 STRING
+     STRING  DB  'Hello World!',13,10,'$';定义数据 STRING,13和10对应ASCII的回车和换行,在汇编中是字符串结束的标志
 DATAS  ENDS;数据段
 
 CODES  SEGMENT;定义代码段 CODES
