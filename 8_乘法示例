@@ -1,0 +1,41 @@
+;计算84756*9
+DATA  SEGMENT
+MULTCAN  DB  '84756'
+COUNT    EQU  $-MULTCAN ;EQU用于定义一个符号常量，其效果不会带来存储空间的占用
+MULTPLR  DB '9'
+ASCPROD  DB  COUNT+1  DUP(0),'$'
+DATA     ENDS
+
+CODE  SEGMENT
+ASSUME CS:CODE,DS:DATA ,ES:DATA
+ASCMUL PROC NEAR
+       MOV  AX,DATA
+       MOV  DS,AX
+       MOV  ES,AX
+       LEA  BX,COUNT;
+       
+       MOV  CX,COUNT;5
+       LEA  SI,MULTCAN+COUNT-1
+ 	   LEA  DI,ASCPROD+COUNT
+       AND  MULTPLR , 0FH
+AGAIN: MOV  AL,[SI]
+       AND  AL,0FH
+       MUL  MULTPLR
+       AAM
+       ADD  AL,[DI]
+       AAA
+       MOV  [DI],AL
+       MOV  [DI-1],AH
+       DEC  DI
+       DEC  SI
+       LOOP  AGAIN
+       LEA  SI,ASCPROD+COUNT
+       MOV  CX,COUNT+1
+NEXT: OR  BYTE  PTR  [SI],30H
+	   DEC  SI
+       LOOP  NEXT
+       MOV  AX,4C00H
+       INT  21H
+ASCMUL  ENDP
+CODE      ENDS
+END  ASCMUL
