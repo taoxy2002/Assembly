@@ -1,0 +1,14 @@
+DATA    SEGMENT
+		  A  DD 12345678h,12344321h;字节整个存；字和双字低字节存在前
+		  
+DATA   ENDS
+CODE   SEGMENT
+        ASSUME CS:CODE,DS:DATA
+START:MOV AX,DATA
+        	MOV DS,AX
+      	LEA AX,A;
+	    	LDS BX,A;
+   		MOV AH,4CH
+        	INT 21H
+CODE  ENDS
+        END START
