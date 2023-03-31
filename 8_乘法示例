@@ -1,39 +1,41 @@
 ;计算84756*9
 DATA  SEGMENT
-MULTCAN  DB  '84756'
-COUNT    EQU  $-MULTCAN ;EQU用于定义一个符号常量，其效果不会带来存储空间的占用
-MULTPLR  DB '9'
-ASCPROD  DB  COUNT+1  DUP(0),'$'
+MULTCAN  DB  '84756';以ASCII码的形式存储
+COUNT    EQU  $-MULTCAN;MULTCAN中数字的个数
+MULTPLR  DB '9';以ASCII码的形式存储
+ASCPROD  DB  COUNT+1  DUP(0),'$';存储乘积的字符串，初始化为0
 DATA     ENDS
 
 CODE  SEGMENT
 ASSUME CS:CODE,DS:DATA ,ES:DATA
-ASCMUL PROC NEAR
+ASCMUL PROC NEAR;过程ASCMUL，用于实现乘法运算
        MOV  AX,DATA
        MOV  DS,AX
        MOV  ES,AX
        LEA  BX,COUNT;
        
        MOV  CX,COUNT;5
-       LEA  SI,MULTCAN+COUNT-1
- 	   LEA  DI,ASCPROD+COUNT
-       AND  MULTPLR , 0FH
-AGAIN: MOV  AL,[SI]
-       AND  AL,0FH
-       MUL  MULTPLR
+       LEA  SI,MULTCAN+COUNT-1;SI寄存器设置为MULTCAN的最后一个字符的偏移量
+ 	   LEA  DI,ASCPROD+COUNT;将DI寄存器设置为ASCPROD的最后一个字符的偏移量
+       AND  MULTPLR , 0FH;与0FH按位与，获取MULTPLR的十进制值
+AGAIN: MOV  AL,[SI];取出MULTCAN中最后一个数字
+       AND  AL,0FH;ASCII to DEC
+       MUL  MULTPLR;BYTE,与MULTPLR相乘，并将结果存储在AL中
        AAM
        ADD  AL,[DI]
-       AAA
+       AAA  ;调整为ASCII
        MOV  [DI],AL
        MOV  [DI-1],AH
+       ;向前移动
        DEC  DI
        DEC  SI
-       LOOP  AGAIN
+       LOOP  AGAIN;循环
        LEA  SI,ASCPROD+COUNT
        MOV  CX,COUNT+1
-NEXT: OR  BYTE  PTR  [SI],30H
+NEXT:  OR  BYTE  PTR  [SI],30H;转换为ASCII
 	   DEC  SI
        LOOP  NEXT
+       
        MOV  AX,4C00H
        INT  21H
 ASCMUL  ENDP
