@@ -28,7 +28,7 @@ T_BUF1		DT	?											;定义十字节类型变量
 T_BUF2		DT	'PC'										
 LEN		    DW	$
 char1  	 	DB  100,0,101 dup(0)
-char2  	 	DB  100,0,101 dup(0)
+char2  	 	DB  100,0,101 dup(0)							;起始地址为100
 message1 	db 'Please input char : ','$'
 message2 	db 'result            : ','$'
 message3    db 'type to copy : ','$'
@@ -135,20 +135,30 @@ disp_letter	endp
 
 ;完成数据复制子程序
 copy_data	proc near
-			lea dx,message3	;提示输入数据1
+			lea dx,message3	;提示输入数据:'type to copy : '
 			mov ah,9
 			int 21h
-			lea dx,char2	;输入字符串	 
+			lea dx,char2	;输入字符串	 char2	DB  100,0,101 dup(0)
 			mov ah,0ah
 			int 21h	
 			lea dx,cr_lf 	;回车换行
 			mov ah,9
-			int 21h		
-			mov SI,offset char2  ;取输入地址
-			mov DI,offset msd	;取地址
-			next:
-			;mov AL,DS[SI]
-			;mov ES[DI],AL
+			int 21h	
+
+			LEA SI,char2[2]  ;取输入地址
+			LEA DI,msd	 ;取地址 存放读入数据的缓冲区，msd例程中已经定义，有200的空间
+			MOV CX,0	 ;CX 和 CHAR2的Byte类型不匹配
+			MOV CL,BYTE PTR char2[1]	;将字符串的字节数放入CX
+			NEXT:
+
+			MOV AL,DS:[SI]	;通过AL将数据进行传递，循环
+    		MOV ES:[DI],AL
+
+			INC SI  ;SI加1
+    		INC DI  ;DI加1
+   			DEC CX	;CX减1
+    		JNZ NEXT ;CX为0时才发生跳转
+
 			inc SI
 			inc DI 
 			dec CX 
@@ -159,9 +169,7 @@ copy_data	endp
 
 
 CODE		ENDS
-			END	MAIN		;程序结束   入口地址
-
-
+END	MAIN		;程序结束   入口地址
 IN		ENDP
 ;显示英文字母子程序
 disp_letter	proc near
@@ -185,4 +193,4 @@ AGAIN:		MOV	AL,[BX]
             jb  not_char
             cmp al,'z'
             ja  not_char
-            cmp al,'a'
+            cmp al,-356
