@@ -158,12 +158,7 @@ copy_data	proc near
     		INC DI  ;DI加1
    			DEC CX	;CX减1
     		JNZ NEXT ;CX为0时才发生跳转
-
-			inc SI
-			inc DI 
-			dec CX 
 						
-
 			ret						;返回转移
 copy_data	endp
 
