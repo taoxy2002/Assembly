@@ -4,7 +4,7 @@ DATAS SEGMENT
     STRING1 DB 'Input string:$' 
     STRING2 DB 'Output string:$'
     STRING_OUTPUT DB 100 DUP(0)
-    CR_LF DB 0DH,0AH
+    CR_LF DB 0DH,0AH,'$'
 DATAS ENDS
 
 STACKS SEGMENT
