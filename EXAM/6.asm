@@ -57,6 +57,7 @@ NO:
     MOV AH,2
     INT 21H
 
+    MOV CL,4
     ;2
     MOV BX,INPUT
     SHL BH,CL
@@ -66,6 +67,7 @@ NO:
     MOV AH,2
     INT 21H
 
+    MOV CL,4
     ;3
     MOV BX,INPUT
     SHR BL,CL
@@ -73,6 +75,7 @@ NO:
     MOV AH,2
     INT 21H
 
+    MOV CL,4
     ;4
     MOV BX,INPUT
     SHL BL,CL
@@ -88,13 +91,13 @@ NO:
 ;放到BL中判断,输出直接给AL
 HEX2ASC PROC
     CMP BL,10
-    JA NEXT
+    JAE NEXT
     MOV DL,BL
     ADD DL,30H
     RET
 NEXT:
     MOV DL,BL
-    ADD DL,40H
+    ADD DL,55
     RET
 HEX2ASC ENDP
 CODES ENDS
