@@ -1,0 +1,101 @@
+;6 键盘输入一个十进制数（字类型），以十六进制的形式输出
+;默认采用ML6.11汇编程序
+DATAS SEGMENT
+    INPUT DW 0
+    OUTPUT DW 0
+    BUFFER DB 0
+    STRING1 DB 'INPUT DEC:$'
+    STRING2 DB 'OUTPUT HEX:$'
+    MUL_NUM DW 1
+    CR_LF DB 0DH,0AH,'$'
+    FLAG DB 1
+DATAS ENDS
+
+STACKS SEGMENT
+    
+STACKS ENDS
+
+CODES SEGMENT
+    ASSUME CS:CODES,DS:DATAS,SS:STACKS
+START:
+    MOV AX,DATAS
+    MOV DS,AX
+    ;输入提示
+    LEA DX,STRING1
+    MOV AH,9
+    INT 21H
+
+    ;一次输入十进制数，分别乘上权重
+	
+GO:
+    MOV AH,1
+    INT 21H
+    CMP AL,30H
+    JB NO
+    CMP AL,39H
+    JA NO
+    MOV CX,0
+    SUB AL,30H
+    MOV CL,AL
+    MOV AX,INPUT
+    MOV BX,10
+    MUL BX
+    ADD AX,CX
+    MOV INPUT,AX
+
+    JNZ GO
+NO:
+    LEA DX,STRING2
+    MOV AH,9
+    INT 21H
+    MOV CL,4
+    ;1
+    MOV BX,INPUT
+    SHR BH,CL
+    MOV BL,BH
+    CALL HEX2ASC
+    MOV AH,2
+    INT 21H
+
+    ;2
+    MOV BX,INPUT
+    SHL BH,CL
+    SHR BH,CL
+    MOV BL,BH
+    CALL HEX2ASC
+    MOV AH,2
+    INT 21H
+
+    ;3
+    MOV BX,INPUT
+    SHR BL,CL
+    CALL HEX2ASC
+    MOV AH,2
+    INT 21H
+
+    ;4
+    MOV BX,INPUT
+    SHL BL,CL
+    SHR BL,CL
+    CALL HEX2ASC
+    MOV AH,2
+    INT 21H
+
+    MOV AH,4CH
+    INT 21H
+
+
+;放到BL中判断,输出直接给AL
+HEX2ASC PROC
+    CMP BL,10
+    JA NEXT
+    MOV DL,BL
+    ADD DL,30H
+    RET
+NEXT:
+    MOV DL,BL
+    ADD DL,40H
+    RET
+HEX2ASC ENDP
+CODES ENDS
+    END START
