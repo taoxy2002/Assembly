@@ -1,0 +1,77 @@
+;9.	键盘输入一个二进制数（字类型），以十进制的形式输出
+; 前导0显示问题
+DATAS SEGMENT
+    INPUT DW 0
+    OUTPUT DB 5 DUP(0),'$'
+    BUFFER DB 17,16 DUP(0)
+    STRING1 DB 'INPUT BIN:$'
+    STRING2 DB 'OUTPUT DEC:$'
+    MUL_NUM DW 2
+    CR_LF DB 0DH,0AH,'$'
+    FLAG DB 1
+    DIV_NUM DW 10
+DATAS ENDS
+
+STACKS SEGMENT
+    
+STACKS ENDS
+
+CODES SEGMENT
+    ASSUME CS:CODES,DS:DATAS,SS:STACKS
+START:
+    MOV AX,DATAS
+    MOV DS,AX
+    ;输入提示
+    LEA DX,STRING1
+    MOV AH,9
+    INT 21H
+
+    ;一次输入十进制数，分别乘上权重
+	LEA DX,BUFFER
+    MOV AH,0AH
+    INT 21H
+
+    MOV CX,0
+    MOV CL,BUFFER[1]
+    LEA SI,BUFFER[2]
+
+    ;CX为循环的次数,输入16位二进制数,将输入字符串数据存入字类型的INPUT
+INP:
+    MOV AX,INPUT
+    MUL MUL_NUM
+    MOV BL,[SI]
+    SUB BL,30H
+    MOV BH,0
+    ADD AX,BX
+    MOV INPUT,AX
+    INC SI
+    LOOP INP
+
+    LEA DX,STRING2
+    MOV AH,9
+    INT 21H
+
+    MOV AX,INPUT
+    MOV CX,5
+    
+    LEA SI,OUTPUT
+    ADD SI,4
+DISP:
+    MOV DX,0
+    DIV DIV_NUM ;对字除法
+    MOV BX,AX
+    ADD DL,30H
+    MOV [SI],DL
+    DEC SI
+    LOOP DISP
+
+
+    LEA DX,OUTPUT
+    MOV AH,9
+    INT 21H
+
+    MOV AH,4CH
+    INT 21H
+
+CODES ENDS
+    END START
