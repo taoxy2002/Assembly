@@ -1,0 +1,82 @@
+;10.键盘输入一个十六进制数（字类型），以十进制的形式输出。
+;默认采用ML6.11汇编程序
+DATAS SEGMENT
+    INPUT DW 0
+    BUFFER DB 5 ,6 DUP(0);最多四位以及一位的空间用于回车输入
+    OUTPUT DB 5 DUP(0),'$'
+    STRING1 DB 'INPUT HEX:$'
+    STRING2 DB 'OUTPUT DEC:$'
+    MUL_NUM DW 16
+    DIV_NUM1 DW 10000
+    DIV_NUM2 DW 1000
+    DIV_NUM3 DW 100
+    DIV_NUM4 DW 10
+    DIV_NUM5 DW 1
+    FLAG DB 0
+DATAS ENDS
+
+
+CODES SEGMENT
+    ASSUME CS:CODES,DS:DATAS
+START:
+    MOV AX,DATAS
+    MOV DS,AX
+    
+    LEA DX,STRING1
+    MOV AH,9
+    INT 21H
+
+    LEA DX,BUFFER
+    MOV AH,0AH
+    INT 21H
+
+    MOV CX,0
+    MOV CL,BUFFER[1]
+    LEA SI,BUFFER[2]
+    ;ADD SI,CX
+    
+GET:
+    MOV AX,INPUT
+    MUL MUL_NUM;乘16
+    MOV BX,0
+    MOV BL,[SI]
+    MOV DL,39H
+    CMP [SI],DL
+    JA LETTER
+    SUB BL,30H;ASC-NUM
+    JMP NUMBER
+    LETTER:
+    SUB BL,55
+    NUMBER:
+    ADD AX,BX
+    INC SI
+    MOV INPUT,AX
+
+    LOOP GET
+
+    LEA DX,STRING2
+    MOV AH,9
+    INT 21H
+
+    LEA SI,OUTPUT[4]
+    MOV AX,INPUT
+    
+    MOV CX,5
+DISP:
+	MOV DX,0
+    DIV DIV_NUM4
+    ADD DL,30H
+    MOV [SI],DL
+    DEC SI
+    CMP AX,0
+    JNZ DISP
+
+    LEA DX,OUTPUT
+    MOV AH,9
+    INT 21H
+    
+    MOV AH,4CH
+    INT 21H
+
+CODES ENDS
+    END START
