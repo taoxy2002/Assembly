@@ -1,0 +1,84 @@
+;12.键盘输入下列两组十进制数，求其和，并将结果显示在屏幕上 35789418 46531425
+;注意标志寄存器的保护
+
+DATAS SEGMENT
+    STRING1 DB 9,10 DUP(0)   
+    STRING2 DB 9,10 DUP(0) 
+	;NUM1 DB 8 DUP(0)
+	;NUM2 DB 8 DUP(0)
+    
+    STRING_IN1 DB "Input1:$"
+    STRING_IN2 DB "Input2:$"
+    STRING_OUT DB "Output:$"
+	Output DB 8 DUP(0),'$'
+    CR_LF DB 0DH,0AH,'$'
+DATAS ENDS
+
+STACKS SEGMENT
+    ;此处输入堆栈段代码
+STACKS ENDS
+
+CODES SEGMENT
+    ASSUME CS:CODES,DS:DATAS,SS:STACKS
+START:
+    MOV AX,DATAS
+    MOV DS,AX
+   
+   	LEA DX,STRING_IN1
+   	MOV AH,9
+   	INT 21H
+   	
+   	LEA DX,STRING1
+   	MOV AH,0AH
+   	INT 21H
+   	
+   	LEA DX,CR_LF
+   	MOV AH,9
+   	INT 21H
+   	
+   	LEA DX,STRING_IN2
+   	MOV AH,9
+   	INT 21H
+   	
+   	LEA DX,STRING2
+   	MOV AH,0AH
+   	INT 21H
+
+	LEA DX,CR_LF
+   	MOV AH,9
+   	INT 21H
+
+   	MOV CX,8
+	LEA SI,STRING1
+	ADD SI,9
+	LEA DI,STRING2
+	ADD DI,9
+	LEA BP,Output
+	ADD BP,8
+
+	CLC
+NUMIN:
+	MOV AL,[SI]
+	MOV BL,[DI]
+
+	ADC AL,BL
+	AAA
+	PUSHF
+	MOV DL,AL
+	ADD DL,30H
+	MOV [BP],DL
+	DEC SI
+	DEC DI
+	DEC BP	
+	POPF
+	LOOP NUMIN
+   
+   	LEA DX,Output
+   	MOV AH,9
+   	INT 21H
+   	
+   	
+    MOV AH,4CH
+    INT 21H
+CODES ENDS
+    END START
