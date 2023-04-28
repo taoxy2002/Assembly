@@ -1,0 +1,85 @@
+;15.	将一组有符号数中的负数求和，并统计负数的个数，并在屏幕上以十进制的形式显示结果。
+;38H，4AH，0C5H，83H，9CH，0B4H，7FH，0C4H，05H，0F5H
+DATAS SEGMENT
+    DATA DB 38H,4AH,0C5H,83H,9CH,0B4H,7FH,0C4H,05H,0F5H
+    COUNT DB 0
+    SUM DW 0
+    STRING1 DB 'OUTPUT:$'
+    CR_LF DB 0DH,0AH,'$'
+    STRING2 DB 'NUMBER OF NEG:$'
+    DIV_NUM DW 10
+    OUTPUT DB 5 DUP(0),'$'
+
+DATAS ENDS
+
+STACKS SEGMENT
+
+STACKS ENDS
+
+CODES SEGMENT
+    ASSUME CS:CODES,DS:DATAS,SS:STACKS
+START:
+    MOV AX,DATAS
+    MOV DS,AX
+    ;使用逻辑与运算 test
+    MOV CX,10
+    LEA SI,DATA
+LOP:
+    MOV BL,[SI]
+    TEST BL,80H
+    JZ pos
+    MOV BL,[SI]
+    NEG BL
+
+    MOV BH,0
+
+    MOV AX,SUM
+    ADD AX,BX
+    MOV SUM,AX
+    INC COUNT
+
+pos:
+    INC SI
+    LOOP LOP
+
+    LEA DX,STRING1
+    MOV AH,9
+    INT 21H
+
+    MOV AX,SUM
+    LEA SI,OUTPUT[4]
+DISP:
+    MOV DX,0
+    DIV DIV_NUM
+    ADD DL,30H
+    MOV [SI],DL
+    DEC SI
+    CMP AX,0
+    JNZ DISP
+    MOV [SI],BYTE PTR '-'
+
+    LEA DX,OUTPUT
+    MOV AH,9
+    INT 21H
+
+    LEA DX,CR_LF
+    MOV AH,9
+    INT 21H
+
+    LEA DX,STRING2
+    MOV AH,9
+    INT 21H
+
+    MOV DL,COUNT
+    ADD DL,30H
+    MOV AH,2
+    INT 21H
+
+    LEA DX,CR_LF
+    MOV AH,9
+    INT 21H
+    
+    MOV AH,4CH
+    INT 21H
+CODES ENDS
+END START
