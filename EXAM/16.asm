@@ -1,0 +1,149 @@
+;16.	键盘输入十个数，分别统计0到9，10到99，100以上的数的个数，并显示结果。
+DATAS SEGMENT
+    INPUT DB 4,5 DUP(0),'$'
+    STRING1 DB 'Input:$'
+    CR_LF DB 0DH,0AH,'$'
+    BUFFER DW 0
+    MUL_NUM DW 10
+    COUNT1 DB 0
+    COUNT2 DB 0
+    COUNT3 DB 0
+    OUT1 DB '0-9:$'
+    OUT2 DB '10-99:$'
+    OUT3 DB '>100:$'
+DATAS ENDS
+
+STACKS SEGMENT
+
+STACKS ENDS
+
+CODES SEGMENT
+    ASSUME CS:CODES,DS:DATAS,SS:STACKS
+START:
+    MOV AX,DATAS
+    MOV DS,AX
+
+    MOV CX,10
+    LEA SI,INPUT
+    
+INP:
+    MOV BX,CX
+    
+    LEA DX,STRING1
+    MOV AH,9
+    INT 21H
+
+    LEA DX,INPUT
+    MOV AH,0AH
+    INT 21H
+
+    MOV CX,0
+    MOV CL,INPUT[1]
+    LEA DI,INPUT[2]
+    MOV BUFFER,0
+    MOV AX,0
+    LOP:
+    MUL MUL_NUM
+    MOV DL,[DI]
+    SUB DL,30H
+    ADD AL,DL
+    INC DI
+    LOOP LOP
+    
+    MOV BUFFER,AX
+
+    CMP BUFFER,10
+    JAE TEN
+    INC COUNT1
+    JMP CONTINUE
+    TEN:
+    CMP BUFFER,100
+    JAE HUNDRED
+    INC COUNT2
+    JMP CONTINUE
+    HUNDRED:
+    INC COUNT3
+
+    CONTINUE:
+    MOV CX,BX
+    LEA DX,CR_LF
+    MOV AH,9
+    INT 21H
+
+    LOOP INP
+
+    ;显示
+    LEA DX,OUT1
+    MOV AH,9
+    INT 21H
+
+    MOV DL,COUNT1
+    CMP DL,10
+    JE T1
+    ADD DL,30H
+    MOV AH,2
+    INT 21H
+    JMP N1
+    T1:
+    MOV DL,31H
+    MOV AH,2
+    INT 21H
+    MOV DL,30H
+    MOV AH,2
+    INT 21H
+ N1:   
+    LEA DX,CR_LF
+    MOV AH,9
+    INT 21H
+
+    LEA DX,OUT2
+    MOV AH,9
+    INT 21H
+
+    MOV DL,COUNT2
+    CMP DL,10
+    JE T2
+    ADD DL,30H
+    MOV AH,2
+    INT 21H
+    JMP N2
+    T2:
+    MOV DL,31H
+    MOV AH,2
+    INT 21H
+    MOV DL,30H
+    MOV AH,2
+    INT 21H
+N2:
+    LEA DX,CR_LF
+    MOV AH,9
+    INT 21H
+
+    LEA DX,OUT3
+    MOV AH,9
+    INT 21H
+    MOV DL,COUNT3
+
+    CMP DL,10
+    JE T3
+    ADD DL,30H
+    MOV AH,2
+    INT 21H
+    JMP N3
+    T3:
+    MOV DL,31H
+    MOV AH,2
+    INT 21H
+    MOV DL,30H
+    MOV AH,2
+    INT 21H
+N3:
+    LEA DX,CR_LF
+    MOV AH,9
+    INT 21H
+    
+
+    MOV AH,4CH
+    INT 21H
+CODES ENDS
+END START
