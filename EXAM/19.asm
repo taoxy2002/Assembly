@@ -1,0 +1,59 @@
+;19 在BUFFER中定义了的十个带符号字，将其中的负数变成绝对值，并以十进制方式输出
+DATAS SEGMENT
+    BUFFER DW -1,-21,1,3,5,666,7,88,99,-12;自定义的带符号字
+    DIV_NUM DW 10
+    OUTPUT DB 6 DUP(0),0dh,0ah,'$'
+    ;CR_LF DB 0DH,0AH,'$'
+
+DATAS ENDS
+
+STACKS SEGMENT
+    ;此处输入堆栈段代码
+STACKS ENDS
+
+CODES SEGMENT
+    ASSUME CS:CODES,DS:DATAS,SS:STACKS
+START:
+    MOV AX,DATAS
+    MOV DS,AX
+    
+    MOV CX,10
+    LEA SI,BUFFER
+LOP:
+    MOV AX,[SI]
+    TEST AX,1000H
+    JZ DISP
+    NEG AX
+    MOV [SI],AX
+    LEA DI,OUTPUT[5]
+DISP:
+    MOV DX,0
+    DIV DIV_NUM
+    ADD DL,30H
+    MOV [DI],DL
+    DEC DI
+    CMP AX,0
+    JNE DISP
+
+    LEA DX,OUTPUT
+    MOV AH,9
+    INT 21H
+    
+    ADD SI,2;字类型的变量
+
+    LEA DI,OUTPUT
+    MOV AX,5
+CLEAR_OUTPUT:
+    MOV DL,0
+    MOV [DI],DL
+    INC DI
+    DEC AX
+JNZ CLEAR_OUTPUT
+
+    LOOP LOP
+
+    MOV AH,4CH
+    INT 21H
+
+CODES ENDS
+    END START
