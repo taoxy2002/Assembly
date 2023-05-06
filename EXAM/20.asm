@@ -1,0 +1,132 @@
+;20.	已知数组A包含20个互不相等的字型整数，
+;数组B包含30个互不相等的字型整数，试编制一程序把在A中而不在B中出现的整数放于数组C中。
+DATA SEGMENT
+;A DW 
+A DW 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20
+B DW 5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,125,130,135,140,145,150
+;STRING DB 'C:'
+C DW 30 DUP(?)
+COUNT DB 0
+CR_LF DB 0DH,0AH,'$'
+DATA ENDS
+
+CODE SEGMENT
+ASSUME CS:CODE,DS:DATA
+
+START:
+    MOV AX,DATA
+    MOV DS,AX
+
+    ; 判断数组A中的元素是否在数组B中存在，若不存在，则添加到数组C中
+    MOV CX,20
+    LEA SI,A
+    LEA DI,C
+
+LOOP1:
+    MOV DX,CX
+    MOV CX,30 
+    MOV AX,[SI]
+    MOV BX,SI
+    LEA SI,B
+
+LOOP2:
+    CMP AX,[SI]
+    JE GO
+    ADD SI,2
+    LOOP LOOP2
+
+NO_EQUAL:
+    MOV [DI],AX
+    
+    PUSH CX
+    PUSH DX
+    CALL DISP
+    POP DX
+    POP CX
+    ADD DI,2
+
+GO:
+    MOV SI,BX
+    MOV CX,DX
+    ADD SI,2
+    LOOP LOOP1
+
+EXIT:
+    MOV CX,0
+    MOV CL,COUNT
+    LEA SI,C
+    
+MOV AH,4CH ; DOS中断21H的退出程序功能
+INT 21H
+
+
+;输入AX
+DISP PROC
+    MOV CL,4
+    ;1
+    ROL AX,CL
+    MOV DX,AX
+    AND DL,00001111B
+    CMP DL,9
+    JA L1
+    ADD DL,30H
+    JMP G1
+L1: ADD DL,55
+G1:
+    PUSH AX
+    MOV AH,2
+    INT 21H
+    POP AX
+    ;2
+    ROL AX,CL
+    MOV DX,AX
+    AND DL,00001111B
+    CMP DL,9
+    JA L2
+    ADD DL,30H
+    JMP G2
+L2: ADD DL,55
+G2:
+    PUSH AX
+    MOV AH,2
+    INT 21H
+    POP AX
+    ;3
+    ROL AX,CL
+    MOV DX,AX
+    AND DL,00001111B
+    CMP DL,9
+    JA L3
+    ADD DL,30H
+    JMP G3
+L3: ADD DL,55
+G3:
+    PUSH AX
+    MOV AH,2
+    INT 21H
+    POP AX
+    ADD SI,2
+    ;4
+    ROL AX,CL
+    MOV DX,AX
+    AND DL,00001111B
+    CMP DL,9
+    JA L4
+    ADD DL,30H
+    JMP G4
+L4: ADD DL,55
+G4:
+    PUSH AX
+    MOV AH,2
+    INT 21H
+    POP AX
+
+    LEA DX,CR_LF
+    MOV AH,9
+    INT 21H
+
+    RET
+DISP ENDP
+
+CODE ENDS
+END START
